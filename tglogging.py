@@ -52,6 +52,7 @@ def read_tgconfig(filename):
     cfg.read(filename, encoding='utf-8')
     conf = {'log_dir': cfg.get('DEFAULT', 'log_dir'),
             'log_file_name': cfg.get('DEFAULT', 'log_file_name'),
+            'tglog': cfg.getboolean('DEFAULT', 'tglog'),
             'name_group': cfg.get('DEFAULT', 'name_group'),
             'token': cfg.get('DEFAULT', 'token')}
     return conf
@@ -72,7 +73,7 @@ def send_tgmessage(res=True, text=""):
             text = bot_result + "\n" + text
         log_write_txt(text.replace("\n", "  "))
         bot_result = ""
-        if tgbot != None and text != "":
+        if tgbot is not None and text != "":
             try:
                 tgbot.send_message(tgconf['name_group'], text)
             except OSError:
@@ -96,7 +97,7 @@ def send_tgphoto(file_name):
     global tgconf
     global tgbot
     log_write_txt("Photo: " + file_name)
-    if tgbot != None:
+    if tgbot is not None:
         try:
             tgbot.send_photo(tgconf['name_group'], open(file_name, 'rb'))
         except OSError:
@@ -110,7 +111,7 @@ def send_tgphoto(file_name):
 # Telegram
 tgconf = read_tgconfig('tgsettings.ini')
 bot_result = ""
-tgbot = telebot.TeleBot(tgconf['token'])
+tgbot = telebot.TeleBot(tgconf['token']) if tgconf['tglog'] else None
 
 
 if __name__ == "__main__":

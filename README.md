@@ -31,6 +31,8 @@ Outputting logs to Telegram
 
 - log_file_name - Путь к файлу с логом.
 
+- tglog - Использовать вывод лога в Telegram?
+
 - name_group - Название канала в Telegram. Например, @group_message.
 
 - token - Ваш токен Telegram бота в формате 9999999999:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.
