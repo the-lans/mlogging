@@ -1,4 +1,5 @@
 import datetime
+import time
 import os
 import configparser
 from PIL import Image
@@ -54,7 +55,9 @@ def read_tgconfig(filename):
             'log_file_name': cfg.get('DEFAULT', 'log_file_name'),
             'tglog': cfg.getboolean('DEFAULT', 'tglog'),
             'name_group': cfg.get('DEFAULT', 'name_group'),
-            'token': cfg.get('DEFAULT', 'token')}
+            'token': cfg.get('DEFAULT', 'token'),
+            'count_exeption': cfg.getint('DEFAULT', 'count_exeption'),
+            'sleep_exeption': cfg.getfloat('DEFAULT', 'sleep_exeption')}
     return conf
 
 def send_tgmessage(res=True, text=""):
@@ -74,13 +77,16 @@ def send_tgmessage(res=True, text=""):
         log_write_txt(text.replace("\n", "  "))
         bot_result = ""
         if tgbot is not None and text != "":
-            try:
-                tgbot.send_message(tgconf['name_group'], text)
-            except OSError:
-                log_write_txt("Error send_tgmessage")
-                return False
-            else:
-                return True
+            for _ in range(tgconf['count_exeption']):
+                try:
+                    tgbot.send_message(tgconf['name_group'], text)
+                except OSError:
+                    time.sleep(tgconf['sleep_exeption'])
+                    continue
+                else:
+                    return True
+            log_write_txt("Error send_tgmessage")
+            return False
     else:
         if bot_result != "":
             bot_result = bot_result + "\n" + text
@@ -98,13 +104,16 @@ def send_tgphoto(file_name):
     global tgbot
     log_write_txt("Photo: " + file_name)
     if tgbot is not None:
-        try:
-            tgbot.send_photo(tgconf['name_group'], open(file_name, 'rb'))
-        except OSError:
-            log_write_txt("Error send_tgphoto")
-            return False
-        else:
-            return True
+        for _ in range(tgconf['count_exeption']):
+            try:
+                tgbot.send_photo(tgconf['name_group'], open(file_name, 'rb'))
+            except OSError:
+                time.sleep(tgconf['sleep_exeption'])
+                continue
+            else:
+                return True
+        log_write_txt("Error send_tgphoto")
+        return False
     return True
 
 
