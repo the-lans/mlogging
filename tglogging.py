@@ -61,9 +61,10 @@ def read_tgconfig(filename):
             'sleep_exeption': cfg.getfloat('DEFAULT', 'sleep_exeption')}
     return conf
 
-def send_tgmessage(res=True, text=""):
+def send_tgmessage(tgres=True, res=True, text=""):
     """
     Отправка сообщения: на экран, в лог, в Telegram.
+    @param tgres: Накопление текста во временной переменной для Telegram.
     @param res: Накопление текста во временной переменной для последующей его отправки. По умолчанию res=True накопления
         не происходит и текст сразу отправляется в лог.
     @param text: Строка текста.
@@ -72,10 +73,16 @@ def send_tgmessage(res=True, text=""):
     global tgconf
     global bot_result
     global tgbot
+
     if res:
+        log_write_txt(text.replace("\n", "  "))
+
+    if tgres:
         if bot_result != "":
             text = bot_result + "\n" + text
-        log_write_txt(text.replace("\n", "  "))
+        if not res:
+            log_write_txt(text.replace("\n", "  "))
+
         bot_result = ""
         if tgbot is not None and text != "":
             for _ in range(tgconf['count_exeption']):
@@ -88,6 +95,7 @@ def send_tgmessage(res=True, text=""):
                     return True
             log_write_txt("Error send_tgmessage")
             return False
+
     else:
         if bot_result != "":
             bot_result = bot_result + "\n" + text
@@ -103,7 +111,9 @@ def send_tgphoto(file_name):
     """
     global tgconf
     global tgbot
+
     log_write_txt("Photo: " + file_name)
+
     if tgbot is not None:
         for _ in range(tgconf['count_exeption']):
             try:
