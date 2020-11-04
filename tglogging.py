@@ -6,6 +6,8 @@ import configparser
 from PIL import Image
 import telebot
 
+PATH_TGCONFIG = 'tgsettings.ini'
+
 #global tgconf
 #global bot_result
 #global tgbot
@@ -61,13 +63,13 @@ def read_tgconfig(filename):
             'sleep_exeption': cfg.getfloat('DEFAULT', 'sleep_exeption')}
     return conf
 
-def send_tgmessage(tgres=True, res=True, text=""):
+def send_tgmessage(text="", res=True, tgres=True):
     """
     Отправка сообщения: на экран, в лог, в Telegram.
-    @param tgres: Накопление текста во временной переменной для Telegram.
+    @param text: Строка текста.
     @param res: Накопление текста во временной переменной для последующей его отправки. По умолчанию res=True накопления
         не происходит и текст сразу отправляется в лог.
-    @param text: Строка текста.
+    @param tgres: Накопление текста во временной переменной для Telegram.
     @return: (bool) - Произошла успешная отправка сообщения?
     """
     global tgconf
@@ -84,7 +86,7 @@ def send_tgmessage(tgres=True, res=True, text=""):
             log_write_txt(text.replace("\n", "  "))
 
         bot_result = ""
-        if tgbot is not None and text != "":
+        if tgbot is not None:
             for _ in range(tgconf['count_exeption']):
                 try:
                     tgbot.send_message(tgconf['name_group'], text)
@@ -129,13 +131,13 @@ def send_tgphoto(file_name):
 
 
 # Telegram
-tgconf = read_tgconfig('tgsettings.ini')
+tgconf = read_tgconfig(PATH_TGCONFIG)
 bot_result = ""
 tgbot = telebot.TeleBot(tgconf['token']) if tgconf['tglog'] else None
 
 
 if __name__ == "__main__":
     newdir(tgconf['log_dir'])
-    send_tgmessage(False, "Первое сообщение")
-    send_tgmessage(True, "Второе сообщение")
+    send_tgmessage("Первое сообщение", tgres=False, res=True)
+    send_tgmessage("Второе сообщение", tgres=True, res=True)
     send_tgphoto('.\{:}\metrics_class.png'.format(tgconf['log_dir']))
